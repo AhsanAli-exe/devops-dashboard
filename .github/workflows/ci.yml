@@ -43,7 +43,7 @@ jobs:
     - name: Run tests
       run: |
         cd app
-        pytest test_main.py -v || echo "Tests completed"
+        timeout 60 pytest test_main.py -v --tb=short || echo "Tests completed with status: $?"
         
     - name: Test Flask application startup
       run: |

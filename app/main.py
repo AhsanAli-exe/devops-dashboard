@@ -106,6 +106,9 @@ def trigger_error():
 def metrics():
     update_system_metrics()
     return generate_latest(),200,{'Content-Type': CONTENT_TYPE_LATEST}
-    
-    
-app.run(host='0.0.0.0',port=5000,debug=True)
+
+
+if __name__ == '__main__':
+    print("Starting DevOps Dashboard API...")
+    print("Metrics available at: http://localhost:5000/metrics")
+    app.run(host='0.0.0.0',port=5000,debug=True)
