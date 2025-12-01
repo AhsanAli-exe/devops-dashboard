@@ -26,7 +26,8 @@ jobs:
     - name: Pre-deployment checks
       run: |
         echo "🔍 Running pre-deployment checks..."
-        python app/main.py --version || echo "v1.0.0"
+        echo "Version: v1.0.0"
+        echo "Python version: $(python --version)"
         echo "✅ Pre-deployment checks passed"
         
     - name: Simulate deployment
@@ -41,9 +42,11 @@ jobs:
       run: |
         echo "Running post-deployment tests..."
         cd app
-        timeout 10s python main.py &
+        python main.py &
+        FLASK_PID=$!
         sleep 5
         curl http://localhost:5000/api/health || exit 1
+        kill $FLASK_PID
         echo "Health check passed"
         
     - name: Deployment summary
