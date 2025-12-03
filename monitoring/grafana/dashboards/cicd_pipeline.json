@@ -1,0 +1,181 @@
+{
+    "annotations": { "list": [] },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "panels": [
+      {
+        "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+        "id": 100,
+        "options": {
+          "content": "# 🔄 CI/CD Pipeline Metrics\n**Real-time tracking of build status, test results, and deployment frequency**",
+          "mode": "markdown"
+        },
+        "transparent": true,
+        "type": "text"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "max": 100,
+            "min": 0,
+            "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 70 }, { "color": "green", "value": 90 }] },
+            "unit": "percent"
+          }
+        },
+        "gridPos": { "h": 6, "w": 6, "x": 0, "y": 2 },
+        "id": 1,
+        "options": { "minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto" },
+        "targets": [{ "expr": "ci_build_success_rate", "refId": "A" }],
+        "title": "✅ Build Success Rate",
+        "type": "gauge"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" }
+        },
+        "gridPos": { "h": 6, "w": 6, "x": 6, "y": 2 },
+        "id": 2,
+        "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+        "targets": [{ "expr": "ci_build_total", "refId": "A" }],
+        "title": "📦 Total Builds",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 120 }, { "color": "red", "value": 180 }] }, "unit": "s" }
+        },
+        "gridPos": { "h": 6, "w": 6, "x": 12, "y": 2 },
+        "id": 3,
+        "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+        "targets": [{ "expr": "ci_build_duration_seconds", "refId": "A" }],
+        "title": "⏱️ Last Build Duration",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }, "unit": "short" }
+        },
+        "gridPos": { "h": 6, "w": 6, "x": 18, "y": 2 },
+        "id": 4,
+        "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+        "targets": [{ "expr": "ci_deployments_total", "refId": "A" }],
+        "title": "🚀 Total Deployments",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" }
+        },
+        "gridPos": { "h": 4, "w": 4, "x": 0, "y": 8 },
+        "id": 5,
+        "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+        "targets": [{ "expr": "ci_tests_total", "refId": "A" }],
+        "title": "🧪 Tests Total",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" }
+        },
+        "gridPos": { "h": 4, "w": 4, "x": 4, "y": 8 },
+        "id": 6,
+        "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+        "targets": [{ "expr": "ci_tests_passed", "refId": "A" }],
+        "title": "✅ Tests Passed",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" }
+        },
+        "gridPos": { "h": 4, "w": 4, "x": 8, "y": 8 },
+        "id": 7,
+        "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+        "targets": [{ "expr": "ci_tests_failed", "refId": "A" }],
+        "title": "❌ Tests Failed",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }, "unit": "s" }
+        },
+        "gridPos": { "h": 4, "w": 4, "x": 12, "y": 8 },
+        "id": 8,
+        "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "auto" },
+        "targets": [{ "expr": "ci_test_duration_seconds", "refId": "A" }],
+        "title": "⏱️ Test Duration",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] }, "unit": "short" }
+        },
+        "gridPos": { "h": 4, "w": 4, "x": 16, "y": 8 },
+        "id": 9,
+        "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+        "targets": [{ "expr": "ci_pipeline_runs_total", "refId": "A" }],
+        "title": "🔄 Pipeline Runs",
+        "type": "stat"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 20, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+            "mappings": [],
+            "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+            "unit": "s"
+          }
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+        "id": 10,
+        "options": { "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+        "targets": [{ "expr": "ci_build_duration_seconds", "legendFormat": "Build Duration", "refId": "A" }],
+        "title": "📈 Build Duration Over Time",
+        "type": "timeseries"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 20, "gradientMode": "opacity", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+            "mappings": [],
+            "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+            "unit": "percent"
+          }
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+        "id": 11,
+        "options": { "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+        "targets": [{ "expr": "ci_build_success_rate", "legendFormat": "Success Rate %", "refId": "A" }],
+        "title": "📊 Build Success Rate Over Time",
+        "type": "timeseries"
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 39,
+    "tags": ["cicd", "pipeline", "builds"],
+    "templating": { "list": [] },
+    "time": { "from": "now-1h", "to": "now" },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "CI/CD Pipeline Metrics",
+    "uid": "cicd-pipeline",
+    "version": 1
+  }

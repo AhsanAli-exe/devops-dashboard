@@ -1,0 +1,47 @@
+global:
+  scrape_interval: 15s      # How often to scrape targets (collect metrics)
+  evaluation_interval: 15s  # How often to evaluate rules
+  
+  # Attach labels to all metrics
+  external_labels:
+    monitor: 'devops-dashboard'
+    environment: 'development'
+
+# Alerting configuration (we'll use this later)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - 'localhost:9093'  # We can add AlertManager later
+
+# Rule files (for alerts and recording rules)
+rule_files:
+  # - "alert_rules.yml"  # We can add this later
+
+# Scrape configurations
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # Job 2: Scrape your Flask application
+  - job_name: 'devops-dashboard-app'
+    scrape_interval: 5s  # Scrape more frequently for demo purposes
+    metrics_path: '/metrics'  # The endpoint we created
+    static_configs:
+      - targets: ['localhost:5000']
+        labels:
+          service: 'flask-app'
+          app: 'devops-dashboard'
+          
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+      - targets: ['localhost:9091']
+        labels:
+          service: 'pushgateway'
+
+          
+ 

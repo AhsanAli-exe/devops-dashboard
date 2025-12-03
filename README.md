@@ -1,11 +1,12 @@
 # 🚀 DevOps Dashboard - Real-Time Monitoring System
 
-A comprehensive DevOps monitoring dashboard that tracks CI/CD pipeline metrics, application health, and system performance using Flask, Prometheus, and Grafana with automated GitHub Actions workflows.
+A comprehensive DevOps monitoring dashboard that tracks **CI/CD pipeline metrics**, **application health**, and **system performance** using Flask, Prometheus, Grafana, and Pushgateway with automated GitHub Actions workflows.
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.0.0-green)
 ![Prometheus](https://img.shields.io/badge/Prometheus-Latest-orange)
 ![Grafana](https://img.shields.io/badge/Grafana-Latest-yellow)
+![Pushgateway](https://img.shields.io/badge/Pushgateway-Enabled-purple)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Enabled-success)
 
 ---
@@ -14,11 +15,12 @@ A comprehensive DevOps monitoring dashboard that tracks CI/CD pipeline metrics, 
 
 - [Overview](#-overview)
 - [Architecture](#-architecture)
+- [Why CI/CD Simulation?](#-why-cicd-simulation)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [CI/CD Pipeline](#-cicd-pipeline)
+- [CI/CD Pipeline Metrics](#-cicd-pipeline-metrics)
 - [Monitoring Dashboards](#-monitoring-dashboards)
 - [API Endpoints](#-api-endpoints)
 - [Metrics Reference](#-metrics-reference)
@@ -28,58 +30,145 @@ A comprehensive DevOps monitoring dashboard that tracks CI/CD pipeline metrics, 
 
 ## 🎯 Overview
 
-This project demonstrates a complete DevOps monitoring solution that provides real-time visibility into:
+This project demonstrates a **complete DevOps monitoring solution** that provides real-time visibility into:
 
+- **CI/CD Pipeline** - Build success rates, test results, deployment frequency
 - **Application Performance** - Request rates, response times, error tracking
 - **System Resources** - CPU, memory, disk, network usage
-- **CI/CD Metrics** - Build success rates, automated testing, pipeline health
 
-The system automatically collects **20+ metrics** every 5 seconds, stores them in Prometheus, and visualizes them through professional Grafana dashboards.
+The system automatically collects **30+ metrics** every 5 seconds, stores them in Prometheus, and visualizes them through **4 professional Grafana dashboards**.
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│              Flask Application (Port 5000)          │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │ REST API    │  │ Prometheus  │  │   System    │  │
-│  │ Endpoints   │  │  Metrics    │  │  Monitor    │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  │
-└─────────────────────────┬───────────────────────────┘
-                          │ HTTP /metrics
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│              Prometheus (Port 9090)                 │
-│  • Time-series database                             │
-│  • Scrapes every 5 seconds                          │
-│  • PromQL query engine                              │
-└─────────────────────────┬───────────────────────────┘
-                          │ Data Source
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│               Grafana (Port 3000)                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │
-│  │ Application  │  │   System     │  │  DevOps   │  │
-│  │   Health     │  │ Performance  │  │ Overview  │  │
-│  └──────────────┘  └──────────────┘  └───────────┘  │
-└─────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────┐
-│              GitHub Actions CI/CD                   │
-│  ┌──────────────────┐  ┌───────────────────────┐    │
-│  │   CI Pipeline    │  │  Metrics Collection   │    │
-│  │ • Linting        │  │ • Workflow tracking   │    │
-│  │ • Testing        │  │ • Success rates       │    │
-│  │ • Health checks  │  │ • Performance data    │    │
-│  └──────────────────┘  └───────────────────────┘    │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                            CLOUD (GitHub)                                │
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │                     GitHub Actions CI/CD                           │  │
+│  │  ┌──────────────────┐        ┌───────────────────────┐            │  │
+│  │  │   CI Pipeline    │        │  Metrics Collection   │            │  │
+│  │  │ • Linting        │        │ • Workflow tracking   │            │  │
+│  │  │ • Testing        │        │ • GitHub API calls    │            │  │
+│  │  │ • Health checks  │        │ • Success rates       │            │  │
+│  │  └──────────────────┘        └───────────────────────┘            │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    ║
+                     ═══════════════╬═══════════════
+                        (Cannot directly communicate)
+                     ═══════════════╬═══════════════
+                                    ║
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          LOCAL ENVIRONMENT                               │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐    │
+│  │              Flask Application (Port 5000)                       │    │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │    │
+│  │  │ REST API    │  │ Prometheus  │  │   System    │              │    │
+│  │  │ Endpoints   │  │  Metrics    │  │  Monitor    │              │    │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘              │    │
+│  └──────────────────────────┬──────────────────────────────────────┘    │
+│                             │                                            │
+│  ┌──────────────────────────┼──────────────────────────────────────┐    │
+│  │     CI/CD Metrics        │         Pushgateway (Port 9091)      │    │
+│  │     Simulator            │         ┌─────────────────────┐      │    │
+│  │  ┌─────────────────┐     │         │ Receives pushed     │      │    │
+│  │  │ cicd_metrics.py │─────┼────────▶│ CI/CD metrics       │      │    │
+│  │  │ • Build metrics │     │         │ from simulator      │      │    │
+│  │  │ • Test results  │     │         └──────────┬──────────┘      │    │
+│  │  │ • Deploy stats  │     │                    │                 │    │
+│  │  └─────────────────┘     │                    │                 │    │
+│  └──────────────────────────┼────────────────────┼─────────────────┘    │
+│                             │                    │                      │
+│                             ▼                    ▼                      │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │                   Prometheus (Port 9090)                         │   │
+│  │  • Scrapes Flask app metrics (every 5s)                          │   │
+│  │  • Scrapes Pushgateway for CI/CD metrics                         │   │
+│  │  • Time-series database with PromQL engine                       │   │
+│  └──────────────────────────────┬───────────────────────────────────┘   │
+│                                 │                                       │
+│                                 ▼                                       │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │                    Grafana (Port 3000)                           │   │
+│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────┐  │   │
+│  │  │ Application  │ │   System     │ │   DevOps     │ │  CI/CD  │  │   │
+│  │  │   Health     │ │ Performance  │ │  Overview    │ │Pipeline │  │   │
+│  │  │  Dashboard   │ │  Dashboard   │ │  Dashboard   │ │Dashboard│  │   │
+│  │  └──────────────┘ └──────────────┘ └──────────────┘ └─────────┘  │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
+## 🤔 Why CI/CD Simulation?
+
+### The Challenge: Cloud vs Local
+
+| Component | Location | Network |
+|-----------|----------|---------|
+| **GitHub Actions** | Cloud (GitHub servers) | Internet |
+| **Prometheus** | Local (your computer) | localhost |
+| **Grafana** | Local (your computer) | localhost |
+
+**Problem:** GitHub Actions runs in the **cloud** on GitHub's servers, while Prometheus runs **locally** on your computer. They **cannot directly communicate** because:
+
+1. GitHub Actions has no access to your `localhost`
+2. Your local Prometheus is behind your home network/firewall
+3. There's no public endpoint for GitHub to push metrics to
+
+### The Solution: CI/CD Metrics Simulator
+
+Instead of trying to bridge the cloud-local gap, we created a **CI/CD Metrics Simulator** (`cicd_metrics.py`) that:
+
+1. **Runs locally** alongside your Flask app
+2. **Simulates real CI/CD pipeline behavior:**
+   - Build durations (30-180 seconds)
+   - Success/failure rates (90% success rate)
+   - Test results (passed/failed counts)
+   - Deployment frequency
+3. **Pushes metrics to Pushgateway** (localhost:9091)
+4. **Prometheus scrapes Pushgateway** and stores the metrics
+5. **Grafana displays** CI/CD metrics in real-time
+
+### How Real Companies Solve This
+
+In production environments, companies use:
+- **Self-hosted Prometheus** with public endpoints
+- **Prometheus Cloud** services (Grafana Cloud, AWS Managed Prometheus)
+- **Webhook-based systems** that receive data from CI/CD
+- **CI/CD-specific tools** (GitLab built-in metrics, Jenkins Prometheus plugin)
+
+Our simulation demonstrates the **same concepts** without requiring cloud infrastructure.
+
+### What the Simulator Tracks
+
+| Metric | Description | Type |
+|--------|-------------|------|
+| `ci_build_duration_seconds` | How long builds take | Gauge |
+| `ci_build_total` | Total builds (success/failure) | Counter |
+| `ci_build_success_rate` | Success percentage | Gauge |
+| `ci_tests_total` | Number of tests run | Gauge |
+| `ci_tests_passed` | Tests that passed | Gauge |
+| `ci_tests_failed` | Tests that failed | Gauge |
+| `ci_test_duration_seconds` | Test execution time | Gauge |
+| `ci_pipeline_runs_total` | Total pipeline executions | Counter |
+| `ci_deployments_total` | Deployment count | Counter |
+
+---
+
 ## ✨ Features
+
+### 🔄 CI/CD Pipeline Monitoring
+- ✅ Build success rate tracking (gauge with thresholds)
+- ✅ Build duration monitoring
+- ✅ Test results (passed/failed/total)
+- ✅ Pipeline run counting
+- ✅ Deployment frequency tracking
+- ✅ Real-time updates via Pushgateway
 
 ### 🏥 Application Monitoring
 - ✅ Real-time HTTP request tracking by endpoint/method/status
@@ -87,7 +176,6 @@ The system automatically collects **20+ metrics** every 5 seconds, stores them i
 - ✅ Error rate monitoring with categorization
 - ✅ Active request counting
 - ✅ Application uptime tracking
-- ✅ Request size monitoring
 
 ### 💻 System Monitoring
 - ✅ CPU usage percentage & core count
@@ -95,19 +183,12 @@ The system automatically collects **20+ metrics** every 5 seconds, stores them i
 - ✅ Disk space utilization
 - ✅ Network I/O (bytes sent/received)
 - ✅ Process-level metrics (threads, memory)
-- ✅ Network connection count
 
-### 🔄 CI/CD Automation
-- ✅ Automated testing on every push
-- ✅ Code linting with flake8
-- ✅ Flask application health checks
-- ✅ Workflow metrics collection
-- ✅ Build success/failure tracking
-
-### 📊 Professional Dashboards
-- ✅ **Application Health Monitor** - Request rates, latency, uptime
-- ✅ **System Performance Monitor** - CPU, memory, disk, network gauges
-- ✅ **DevOps Overview Dashboard** - Pipeline health, service status
+### 📊 Professional Dashboards (4 Total)
+1. **Application Health Monitor** - Request rates, latency, uptime
+2. **System Performance Monitor** - CPU, memory, disk, network gauges
+3. **DevOps Overview Dashboard** - Service status, API metrics
+4. **CI/CD Pipeline Metrics** - Build success rates, test results, deployments
 
 ---
 
@@ -118,6 +199,7 @@ The system automatically collects **20+ metrics** every 5 seconds, stores them i
 | **Backend** | Python 3.12, Flask 3.0.0 |
 | **Metrics** | prometheus-client, psutil |
 | **Monitoring** | Prometheus (time-series DB) |
+| **Metric Gateway** | Pushgateway (for CI/CD metrics) |
 | **Visualization** | Grafana (dashboards) |
 | **CI/CD** | GitHub Actions |
 | **Testing** | pytest, flake8 |
@@ -131,6 +213,7 @@ The system automatically collects **20+ metrics** every 5 seconds, stores them i
 - Python 3.12+
 - Git
 - [Prometheus](https://prometheus.io/download/)
+- [Pushgateway](https://prometheus.io/download/#pushgateway)
 - [Grafana](https://grafana.com/grafana/download)
 
 ### Step 1: Clone Repository
@@ -143,70 +226,44 @@ cd devops-dashboard
 ### Step 2: Python Environment
 
 ```bash
-# Create virtual environment
 python -m venv venv
-
-# Activate (Windows)
-venv\Scripts\activate
-
-# Activate (Linux/Mac)
-source venv/bin/activate
-
-# Install dependencies
+venv\Scripts\activate  # Windows
 pip install -r app/requirements.txt
 ```
 
-### Step 3: Start Services
+### Step 3: Start All Services (5 Terminals)
 
 ```bash
-# Terminal 1: Start Flask App
-cd app
+# Terminal 1: Pushgateway
+cd C:\pushgateway
+.\pushgateway.exe
+
+# Terminal 2: Prometheus
+cd C:\prometheus
+.\prometheus.exe
+
+# Terminal 3: Flask App
+cd devops-dashboard/app
 python main.py
 
-# Terminal 2: Start Prometheus
-cd /path/to/prometheus
-./prometheus --config.file=/path/to/devops-dashboard/monitoring/prometheus.yml
+# Terminal 4: CI/CD Metrics Simulator
+cd devops-dashboard/app
+python cicd_metrics.py
 
-# Terminal 3: Start Grafana
-cd /path/to/grafana/bin
-./grafana-server
+# Terminal 5: Grafana
+cd "C:\Program Files\GrafanaLabs\grafana\bin"
+.\grafana-server.exe
 ```
 
 ### Step 4: Configure Grafana
 
 1. Open http://localhost:3000 (login: admin/admin)
 2. Add Data Source → Prometheus → URL: `http://localhost:9090`
-3. Import dashboards from `monitoring/grafana/dashboards/`
+3. Import all 4 dashboards from `monitoring/grafana/dashboards/`
 
 ---
 
 ## 🚀 Usage
-
-### Start the Application
-
-```bash
-cd app
-python main.py
-```
-
-Output:
-```
-==================================================
-🚀 DevOps Dashboard API
-==================================================
-📊 Metrics: http://localhost:5000/metrics
-🏥 Health:  http://localhost:5000/api/health
-📈 Stats:   http://localhost:5000/api/stats
-==================================================
-```
-
-### Generate Traffic
-
-```bash
-python load-test.py
-```
-
-This sends ~10 requests/second for 2 minutes to populate dashboards with real data.
 
 ### Access Services
 
@@ -214,74 +271,86 @@ This sends ~10 requests/second for 2 minutes to populate dashboards with real da
 |---------|-----|---------|
 | Flask API | http://localhost:5000 | Application |
 | Prometheus | http://localhost:9090 | Metrics DB |
+| Pushgateway | http://localhost:9091 | CI/CD Metrics |
 | Grafana | http://localhost:3000 | Dashboards |
+
+### Verify Prometheus Targets
+
+Go to http://localhost:9090/targets - You should see **3 targets UP:**
+- ✅ `devops-dashboard-app` (localhost:5000)
+- ✅ `prometheus` (localhost:9090)
+- ✅ `pushgateway` (localhost:9091)
+
+### Generate Traffic
+
+```bash
+python load-test.py  # Application traffic
+python app/cicd_metrics.py  # CI/CD metrics (runs continuously)
+```
 
 ---
 
-## 🔄 CI/CD Pipeline
+## 🔄 CI/CD Pipeline Metrics
 
-### CI Pipeline (`ci.yml`)
+### Real GitHub Actions Workflows
 
-**Triggers:** Push to main/master/develop, Pull requests
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `ci.yml` | Push/PR to main | Automated testing, linting, health checks |
+| `metrics.yml` | Push to main | Collects workflow data from GitHub API |
 
-| Step | Description |
-|------|-------------|
-| Checkout | Clone repository |
-| Setup Python | Install Python 3.12 |
-| Cache | Cache pip dependencies |
-| Install | Install requirements |
-| Lint | Run flake8 code analysis |
-| Test | Execute pytest suite |
-| Health Check | Start app and verify endpoints |
+### Simulated CI/CD Metrics (Pushgateway)
 
-### Metrics Collection (`metrics.yml`)
+The `cicd_metrics.py` simulator pushes metrics every 30 seconds:
 
-**Triggers:** After CI completion, Manual trigger, Scheduled
+```
+🔄 Simulating CI/CD run #1...
+   📦 Build: SUCCESS (45.2s)
+   🧪 Tests: 7/7 passed
+   🚀 Deploy to production: SUCCESS
+   ✅ Metrics pushed to Pushgateway
+```
 
-| Step | Description |
-|------|-------------|
-| Collect | Fetch workflow data via GitHub API |
-| Calculate | Compute success rates |
-| Report | Generate metrics summary |
+### CI/CD Dashboard Panels
+
+| Panel | Metric | Description |
+|-------|--------|-------------|
+| Build Success Rate | `ci_build_success_rate` | Gauge showing % (green >90%) |
+| Total Builds | `ci_build_total` | Counter with trend |
+| Build Duration | `ci_build_duration_seconds` | Time series graph |
+| Tests Passed/Failed | `ci_tests_passed`, `ci_tests_failed` | Stats |
+| Pipeline Runs | `ci_pipeline_runs_total` | Counter |
+| Deployments | `ci_deployments_total` | By environment |
 
 ---
 
 ## 📊 Monitoring Dashboards
 
 ### 1. Application Health Monitor
-
-| Panel | Description |
-|-------|-------------|
-| App Status | UP/DOWN indicator |
-| Total Requests | Cumulative request count |
-| Total Errors | Error count with alerting |
-| Requests/sec | Current throughput |
-| Uptime | Application runtime |
-| Request Rate Graph | Time-series by endpoint |
-| Response Time (p95) | Latency percentiles |
-| Endpoint Distribution | Pie chart of traffic |
+- Request rate by endpoint
+- Response time percentiles (p95)
+- Error tracking
+- Uptime monitoring
+- Traffic distribution pie chart
 
 ### 2. System Performance Monitor
-
-| Panel | Description |
-|-------|-------------|
-| CPU Gauge | Usage with thresholds |
-| Memory Gauge | RAM utilization |
-| Disk Gauge | Storage usage |
-| Network Connections | Active connections |
-| CPU & Memory Graph | Historical trends |
-| Network I/O | Bytes sent/received |
+- CPU/Memory/Disk gauges with thresholds
+- Network I/O graphs
+- Process metrics
+- Historical trends
 
 ### 3. DevOps Overview Dashboard
+- Service status (App + Prometheus)
+- API call volume
+- Error rates
+- Quick health overview
 
-| Panel | Description |
-|-------|-------------|
-| App Status | Application health |
-| Prometheus Status | Monitoring health |
-| Total API Calls | Request counter |
-| Error Count | Error monitoring |
-| Traffic Distribution | Request breakdown |
-| Process Metrics | Memory, threads |
+### 4. CI/CD Pipeline Metrics ⭐ NEW
+- Build success rate gauge
+- Build duration trends
+- Test pass/fail stats
+- Deployment tracking
+- Pipeline run counter
 
 ---
 
@@ -289,75 +358,47 @@ This sends ~10 requests/second for 2 minutes to populate dashboards with real da
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/` | GET | API information and available endpoints |
-| `/api/health` | GET | Health check with system status |
-| `/api/data` | GET | Sample data with processing delay |
-| `/api/stats` | GET | Detailed system statistics |
-| `/api/error` | GET | Error simulation (testing) |
-| `/metrics` | GET | Prometheus metrics endpoint |
-
-### Example Responses
-
-**GET /api/health**
-```json
-{
-  "status": "healthy",
-  "uptime_seconds": 3600.5,
-  "uptime_formatted": "1h 0m 0s",
-  "checks": {
-    "cpu": "ok",
-    "memory": "ok",
-    "disk": "ok"
-  }
-}
-```
-
-**GET /api/stats**
-```json
-{
-  "system": {
-    "platform": "Windows",
-    "hostname": "DevMachine"
-  },
-  "cpu": {
-    "usage_percent": 15.2,
-    "cores": 16
-  },
-  "memory": {
-    "total_gb": 16.0,
-    "used_gb": 8.5,
-    "percent": 53.1
-  }
-}
-```
+| `/` | GET | API information |
+| `/api/health` | GET | Health check |
+| `/api/data` | GET | Sample data |
+| `/api/stats` | GET | System statistics |
+| `/api/error` | GET | Error simulation |
+| `/metrics` | GET | Prometheus metrics |
 
 ---
 
 ## 📈 Metrics Reference
 
+### CI/CD Metrics (via Pushgateway)
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `ci_build_success_rate` | Gauge | Build success percentage |
+| `ci_build_total` | Counter | Total builds by status |
+| `ci_build_duration_seconds` | Gauge | Build time |
+| `ci_tests_total` | Gauge | Tests run |
+| `ci_tests_passed` | Gauge | Passed tests |
+| `ci_tests_failed` | Gauge | Failed tests |
+| `ci_pipeline_runs_total` | Counter | Pipeline executions |
+| `ci_deployments_total` | Counter | Deployments |
+
 ### Application Metrics
 
-| Metric | Type | Labels | Description |
-|--------|------|--------|-------------|
-| `http_requests_total` | Counter | method, endpoint, status | Total HTTP requests |
-| `http_request_duration_seconds` | Histogram | method, endpoint | Request latency |
-| `http_errors_total` | Counter | endpoint, error_type | Error count |
-| `active_requests` | Gauge | - | Current active requests |
-| `app_uptime_seconds` | Gauge | - | Application uptime |
+| Metric | Type | Description |
+|--------|------|-------------|
+| `http_requests_total` | Counter | HTTP requests |
+| `http_request_duration_seconds` | Histogram | Latency |
+| `http_errors_total` | Counter | Errors |
+| `app_uptime_seconds` | Gauge | Uptime |
 
 ### System Metrics
 
 | Metric | Type | Description |
 |--------|------|-------------|
-| `cpu_usage_percent` | Gauge | CPU utilization |
-| `cpu_count_total` | Gauge | Number of CPU cores |
-| `memory_usage_bytes` | Gauge | Memory used |
-| `memory_usage_percent` | Gauge | Memory percentage |
-| `disk_usage_percent` | Gauge | Disk utilization |
-| `network_bytes_sent` | Gauge | Network TX bytes |
-| `network_bytes_recv` | Gauge | Network RX bytes |
-| `process_memory_bytes` | Gauge | Process memory |
-| `process_threads` | Gauge | Thread count |
+| `cpu_usage_percent` | Gauge | CPU usage |
+| `memory_usage_percent` | Gauge | RAM usage |
+| `disk_usage_percent` | Gauge | Disk usage |
+| `network_bytes_sent/recv` | Gauge | Network I/O |
 
 ---
 
@@ -367,38 +408,24 @@ This sends ~10 requests/second for 2 minutes to populate dashboards with real da
 devops-dashboard/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml              # CI pipeline
-│       └── metrics.yml         # Metrics collection
+│       ├── ci.yml                    # CI pipeline (testing, linting)
+│       └── metrics.yml               # GitHub API metrics collection
 ├── app/
-│   ├── main.py                 # Flask application (200+ lines)
-│   ├── test_main.py            # Unit tests (7 tests)
-│   └── requirements.txt        # Dependencies
+│   ├── main.py                       # Flask application
+│   ├── cicd_metrics.py               # CI/CD metrics simulator ⭐
+│   ├── test_main.py                  # Unit tests
+│   └── requirements.txt              # Dependencies
 ├── monitoring/
-│   ├── prometheus.yml          # Prometheus config
+│   ├── prometheus.yml                # Prometheus config (3 targets)
 │   └── grafana/
 │       └── dashboards/
 │           ├── application-health.json
 │           ├── system-performance.json
-│           └── cicd-metrics.json
-├── load-test.py                # Load testing script
+│           ├── cicd-metrics.json
+│           └── cicd-pipeline.json    # CI/CD dashboard ⭐
+├── load-test.py                      # Load testing script
 ├── .gitignore
 └── README.md
-```
-
----
-
-## 🧪 Testing
-
-```bash
-# Run unit tests
-cd app
-pytest test_main.py -v
-
-# Run linting
-flake8 app --max-line-length=127
-
-# Load testing
-python load-test.py
 ```
 
 ---
@@ -407,23 +434,25 @@ python load-test.py
 
 | Metric | Value |
 |--------|-------|
-| Total Metrics | 20+ |
-| Dashboard Panels | 30+ |
+| Total Metrics | 30+ |
+| Grafana Dashboards | 4 |
+| Dashboard Panels | 40+ |
 | API Endpoints | 6 |
 | Unit Tests | 7 |
 | CI/CD Workflows | 2 |
-| Lines of Code | 1,500+ |
 
 ---
 
 ## 🎓 DevOps Concepts Demonstrated
 
-1. **Observability** - Full visibility into application behavior
-2. **Monitoring** - Real-time metrics collection
-3. **CI/CD** - Automated testing pipelines
-4. **Infrastructure as Code** - YAML configurations
-5. **Time-Series Data** - Prometheus & PromQL
-6. **Data Visualization** - Professional dashboards
+1. **Observability** - Full visibility into application, system, and CI/CD
+2. **Monitoring** - Real-time metrics collection with Prometheus
+3. **Push vs Pull Metrics** - Pushgateway for ephemeral jobs
+4. **CI/CD** - Automated testing with GitHub Actions
+5. **Infrastructure as Code** - YAML configurations
+6. **Time-Series Data** - Prometheus & PromQL queries
+7. **Data Visualization** - Professional Grafana dashboards
+8. **Metric Types** - Counters, Gauges, Histograms
 
 ---
 
