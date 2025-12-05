@@ -300,8 +300,11 @@ def format_uptime(seconds):
 
 
 if __name__ == '__main__':
+    print("=" * 50)
+    print("🚀 DevOps Dashboard API")
+    print("=" * 50)
     print(f"📊 Metrics: http://localhost:5000/metrics")
     print(f"🏥 Health:  http://localhost:5000/api/health")
     print(f"📈 Stats:   http://localhost:5000/api/stats")
     print("=" * 50)
-    app.run(host='0.0.0.0',port=5000,debug=True)
+    app.run(host='0.0.0.0',port=5000,debug=False)

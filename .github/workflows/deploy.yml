@@ -1,0 +1,79 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY_B64: ${{ secrets.EC2_SSH_KEY_B64 }}
+        run: |
+          # Decode SSH key
+          echo "$EC2_SSH_KEY_B64" | base64 -d > private_key.pem
+          chmod 600 private_key.pem
+          
+          # Create deployment script
+          cat << 'EOF' > deploy.sh
+          #!/bin/bash
+          set -e
+          
+          echo "🚀 Starting deployment..."
+          
+          # Navigate to app directory
+          cd ~
+          
+          # Clone or update repository
+          if [ -d "devops-dashboard" ]; then
+            echo "📥 Updating existing repository..."
+            cd devops-dashboard
+            git pull origin main
+          else
+            echo "📥 Cloning repository..."
+            git clone https://github.com/AhsanAli-exe/devops-dashboard.git
+            cd devops-dashboard
+          fi
+          
+          # Stop existing container if running
+          echo "🛑 Stopping existing container..."
+          docker stop devops-app 2>/dev/null || true
+          docker rm devops-app 2>/dev/null || true
+          
+          # Build Docker image
+          echo "🔨 Building Docker image..."
+          docker build -t devops-dashboard .
+          
+          # Run new container
+          echo "▶️ Starting new container..."
+          docker run -d \
+            --name devops-app \
+            --restart unless-stopped \
+            -p 5000:5000 \
+            devops-dashboard
+          
+          # Verify deployment
+          echo "✅ Verifying deployment..."
+          sleep 5
+          curl -s http://localhost:5000/api/health || echo "Health check pending..."
+          
+          echo "🎉 Deployment complete!"
+          docker ps
+          EOF
+          
+          # Copy and execute deployment script on EC2
+          scp -o StrictHostKeyChecking=no -i private_key.pem deploy.sh $EC2_USER@$EC2_HOST:~/deploy.sh
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "chmod +x ~/deploy.sh && ~/deploy.sh"
+          
+          # Cleanup
+          rm -f private_key.pem deploy.sh
+

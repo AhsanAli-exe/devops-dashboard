@@ -461,14 +461,4 @@ devops-dashboard/
 **Ahsan Ali**
 - GitHub: [@AhsanAli-exe](https://github.com/AhsanAli-exe)
 
----
 
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-**⭐ If you found this project helpful, please give it a star!**
-
-*Built with ❤️ for DevOps learning and demonstration*
